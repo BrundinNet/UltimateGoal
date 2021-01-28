@@ -19,16 +19,15 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     private DcMotor motorFR;
     private DcMotor motorBL;
     private DcMotor motorBR;
-    private DcMotor motorArmAngle;
-    private DcMotor motorArmExtender;
-    private Servo servoRH;
-    private Servo servoGR;
-    private Servo servoLH;
-    private Servo servoGP;
+    private DcMotor motorIN;
+    private Servo servoWG;
+   
+   // private Servo servoGP;
     //private boolean hookIsDown = false;
     //private boolean leftTriggerIsPressed = false;
+    private boolean wgCLOSED = true;
     double interval = 0.05;
-    private double currentGripperRotatePosition;
+ 
 
     @Override
     public void runOpMode() {
@@ -43,36 +42,37 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorFR = hardwareMap.get(DcMotor.class, "motorFR");
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");
         motorBR = hardwareMap.get(DcMotor.class, "motorBR");
+        motorIN = hardwareMap.get(DcMotor.class, "motorIN");
+        servoWG = hardwareMap.get(Servo.class, "servoWG");
 
         // Set Motor Power
         motorFL.setPower(0);
         motorFR.setPower(0);
         motorBL.setPower(0);
         motorBR.setPower(0);
-        motorArmAngle.setPower(0);
-        motorArmExtender.setPower(0);
+        motorIN.setPower(0);
 
         // Set Motor Mode
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorArmAngle.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motorArmExtender.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        motorIN.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        
         // Set Right Motors to reverse values
         motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
-        servoLH.setDirection(Servo.Direction.REVERSE);
 
         // Set Motor zeroPowerBehavior
         motorFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorArmAngle.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorArmExtender.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorIN.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        
+        // Set Servo Position
+        servoWG.setPosition(0);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -109,9 +109,34 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         //GAMEPAD 1
 
 
-
-        // Setting the motors to a negative value will cause the robot to go forwards
-        if (leftJoystickY < 0) { // Left Joystick Down (Backwards)
+        
+        // SLOW MODE BELOW, THEN RAW DATA
+        
+         if 	(gamepad1.left_trigger && leftJoystickY < 0) { // Left Joystick Down (Backwards)
+            telemetry.addData("Direction", "Down"); //GOING BACKWARDS, JOYSTICK DOWN
+            motorFL.setPower(-0.4); // -1
+            motorFR.setPower(-0.4); // -1
+            motorBL.setPower(-0.4); // -1
+            motorBR.setPower(-0.4); // -1
+        } else if (gamepad1.left_trigger && leftJoystickY > 0) { // Left Joystick Up (Forwards)
+            telemetry.addData("Direction", "Up"); //GOING FORWARDS WITH STICK UP
+            motorFL.setPower(0.4); // 1
+            motorFR.setPower(0.4); // 1
+            motorBL.setPower(0.4); // 1
+            motorBR.setPower(0.4); // 1
+        } else if (gamepad1.left_trigger && leftJoystickX > 0) { // Left Joystick Left (Left)
+            telemetry.addData("Direction", "Left"); //GOING LEFT WITH STICK SIDEWAYS LEFT
+            motorFL.setPower(0.4);  //  1
+            motorFR.setPower(-0.4);   // -1
+            motorBL.setPower(-0.4);   // -1
+            motorBR.setPower(0.4);  //  1
+        } else if (gamepad1.left_trigger && leftJoystickX < 0) { // Left Joystick Right (Right)
+            telemetry.addData("Direction", "Right"); //GOING RIGHT WITH STICK SIDEWAYS RIGHT
+            motorFL.setPower(0.4);  //  1
+            motorFR.setPower(-0.4);   // -1
+            motorBL.setPower(-0.4);   // -1
+            motorBR.setPower(0.4);  //  1
+        } else if (leftJoystickY < 0) { // Left Joystick Down (Backwards)
             telemetry.addData("Direction", "Down"); //GOING BACKWARDS, JOYSTICK DOWN
             motorFL.setPower(leftJoystickY); // -1
             motorFR.setPower(leftJoystickY); // -1
@@ -141,10 +166,24 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             motorBL.setPower(0);
             motorBR.setPower(0);
         }
+        
+        
 
 
         // TURNING - TURNING - TURNING - TURNING - TURNING - TURNING - TURNING - //
-        if (rightJoystickX > 0) { // Right Joystick Left (Counter Clockwise)
+        if (gamepad1.left_trigger && rightJoystickX > 0) { // Right Joystick Left (Counter Clockwise)
+            telemetry.addData("Spin", "Counter Clockwise"); //TURNING COUNTER CLOCKWISE WITH STICK LEFT
+            motorFL.setPower(0.4); //  1
+            motorFR.setPower(-0.4);  // -1   SLOW MODE
+            motorBL.setPower(0.4); //  1
+            motorBR.setPower(-0.4);  // -1
+        } else if (gamepad1.left_trigger && rightJoystickX < 0) { // Right Joystick Right (Clockwise)
+            telemetry.addData("Spin", "Clockwise"); //TURNING CLOCKWISE WITH STICK RIGHT
+            motorFL.setPower(-0.4); // -1
+            motorFR.setPower(0.4);  //  1
+            motorBL.setPower(-0.4); // -1
+            motorBR.setPower(0.4);  //  1
+        } else if (rightJoystickX > 0) { // Right Joystick Left (Counter Clockwise)
             telemetry.addData("Spin", "Counter Clockwise"); //TURNING COUNTER CLOCKWISE WITH STICK LEFT
             motorFL.setPower(-rightJoystickX); //  1
             motorFR.setPower(rightJoystickX);  // -1
@@ -157,11 +196,28 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             motorBL.setPower(-rightJoystickX); // -1
             motorBR.setPower(rightJoystickX);  //  1
         }
+        
         // TURNING - TURNING - TURNING - TURNING - TURNING - TURNING - TURNING - //
 
-
-     
-
+        // INTAKE
+             if (gamepad2.left_trigger) {
+            motorIN.setPower(1);
+        } else if (gamepad2.right_trigger) {
+            motorIN.setPower(-1);
+        } else {
+            motorIN.setPower(0);
+        }
+        
+        
+        //WG open close
+        
+        if (gamepad2.left_stick_button && wgCLOSED) {
+            servoWG.setPosition(0.5);
+            wgCLOSED = false;
+        } else if (gamepad2.left_stick_button && !wgCLOSED) {
+            servoWG.setPosition(0);
+            wgCLOSED = true;
+          }
       
     }
     }
