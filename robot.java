@@ -20,9 +20,14 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     private DcMotor motorBL;
     private DcMotor motorBR;
     private DcMotor motorIN;
+    private DcMotor motorSH0;
+    private DcMotor motorSH1;
+    private DcMotor motorAA;
     private Servo servoWG;
     private Servo servoLL;
     private Servo servoLR;
+    private Servo servoLFT;
+    private CRServo servoMAG;
    
    // private Servo servoGP;
     //private boolean hookIsDown = false;
@@ -46,9 +51,17 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");
         motorBR = hardwareMap.get(DcMotor.class, "motorBR");
         motorIN = hardwareMap.get(DcMotor.class, "motorIN");
+        
+        motorSH0 = hardwareMap.get(DcMotor.class, "motorSH0");
+        motorSH1 = hardwareMap.get(DcMotor.class, "motorSH1");
+        motorAA = hardwareMap.get(DcMotor.class, "motorAA");
+        
+        servoMAG = hardwareMap.get(CRServo.class, "servoMAG");
+        
         servoWG = hardwareMap.get(Servo.class, "servoWG");
-        servoWG = hardwareMap.get(Servo.class, "servoLL");
-        servoWG = hardwareMap.get(Servo.class, "servoLR");
+        servoLFT = hardwareMap.get(Servo.class, "servoLFT");
+        servoLL = hardwareMap.get(Servo.class, "servoLL");
+        servoLR = hardwareMap.get(Servo.class, "servoLR");
 
         // Set Motor Power
         motorFL.setPower(0);
@@ -56,6 +69,9 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorBL.setPower(0);
         motorBR.setPower(0);
         motorIN.setPower(0);
+        motorSH0.setPower(0);
+        motorSH1.setPower(0);
+        motorAA.setPower(0);
 
         // Set Motor Mode
         motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -63,6 +79,9 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorIN.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorSH0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorSH1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorAA.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         
         // Set Right Motors to reverse values
         motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -74,10 +93,14 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorIN.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorSH0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorSH1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorAA.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         
         // Set Servo Position
         servoWG.setPosition(0);
+        servoLFT.setPosition(0);
         servoLL.setPosition(wobbleLiftServoPOS);
         servoLR.setPosition(wobbleLiftServoPOS);
 
@@ -213,8 +236,12 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         // INTAKE
              if (gamepad2.left_trigger) {
             motorIN.setPower(1);
+            motorSH0.setPower(0.1);
+            motorSH1.setPower(0.1);
         } else if (gamepad2.right_trigger) {
             motorIN.setPower(-1);
+            motorSH0.setPower(-0.1);
+            motorSH1.setPower(-0.1);
         } else {
             motorIN.setPower(0);
         }
@@ -241,9 +268,44 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             wobbleLiftServoPOS += interval;
         }
         
-        -----------------------------------------------------------------------------------------------------
-           
         
+        
+        
+        // Servo MAG, SHoots one ring
+        if (gamepad2.a) {
+            servoMAG.setPower(1); 
+        } else {
+            servoMAG.setPower(0.5); 
+        }
+        
+        
+        if (gamepad2.b) {
+            motorAA.setPower(0.35);
+        } else if (gamepad2.x) { 
+            motorAA.setPower(-0.35);
+            motorSH0.setPower(0);
+            motorSH1.setPower(0);
+        } else {
+            motorAA.setPower(0);
+            motorSH0.setPower(0);
+            motorSH1.setPower(0);
+        }
+                              
+        if (gamepad2.y) {
+            motorSH0.setPower(0.75);
+            motorSH1.setPower(0.75);
+        }
+           
+        if (gamepad1.left_stick_button && gamepad1.right_stick_button){
+            motorFL.setPower(0);
+            motorFR.setPower(0);
+            motorBL.setPower(0);
+            motorBR.setPower(0);
+            motorIN.setPower(0);
+            motorSH0.setPower(0);
+            motorSH1.setPower(0);
+            motorAA.setPower(0);            
+        }
         
     }
     }
