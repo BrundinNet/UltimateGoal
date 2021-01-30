@@ -21,11 +21,14 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     private DcMotor motorBR;
     private DcMotor motorIN;
     private Servo servoWG;
+    private Servo servoLL;
+    private Servo servoLR;
    
    // private Servo servoGP;
     //private boolean hookIsDown = false;
     //private boolean leftTriggerIsPressed = false;
     private boolean wgCLOSED = true;
+    private double wobbleLiftServoPOS = 0;
     double interval = 0.05;
  
 
@@ -44,6 +47,8 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         motorBR = hardwareMap.get(DcMotor.class, "motorBR");
         motorIN = hardwareMap.get(DcMotor.class, "motorIN");
         servoWG = hardwareMap.get(Servo.class, "servoWG");
+        servoWG = hardwareMap.get(Servo.class, "servoLL");
+        servoWG = hardwareMap.get(Servo.class, "servoLR");
 
         // Set Motor Power
         motorFL.setPower(0);
@@ -73,6 +78,8 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         
         // Set Servo Position
         servoWG.setPosition(0);
+        servoLL.setPosition(wobbleLiftServoPOS);
+        servoLR.setPosition(wobbleLiftServoPOS);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -108,7 +115,11 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         double rightJoystickY = -gamepad1.right_stick_y; // Unused
         //GAMEPAD 1
 
-
+        
+        //ALWAYS HAVE THIS
+        servoLL.setPosition(wobbleLiftServoPOS);
+        servoLR.setPosition(wobbleLiftServoPOS);
+        //Always HAVE THIS
         
         // SLOW MODE BELOW, THEN RAW DATA
         
@@ -218,6 +229,21 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             servoWG.setPosition(0);
             wgCLOSED = true;
           }
-      
+        
+        
+        // Right joystick up/down to for wobble lift
+        
+        if (gamepad2RightJoystickY < 0 && wobbleLiftServoPOS >= 0) { //Joystick going down
+            wobbleLiftServoPOS -= interval;
+        }
+        
+        if (gamepad2RightJoystickY > 0 && wobbleLiftServoPOS < 0.8) { //Joystick going UP
+            wobbleLiftServoPOS += interval;
+        }
+        
+        -----------------------------------------------------------------------------------------------------
+           
+        
+        
     }
     }
